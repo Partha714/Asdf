@@ -48,27 +48,36 @@
       }
 
       function createTextPoints() {
-        ctx.clearRect(0, 0, W, H);
-        const fontSize = W < 500 ? 36 : 72;
-        ctx.font = `bold ${fontSize}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillStyle = "white";
-        ctx.fillText(message, W / 2, H / 2);
+  ctx.clearRect(0, 0, W, H);
 
-        const data = ctx.getImageData(0, 0, W, H).data;
-        const points = [];
-        const gap = W < 500 ? 7 : 6;
+  // Dynamically adjust font size
+  let baseSize = W < 400 ? 30 : W < 600 ? 45 : 70;
+  ctx.font = `bold ${baseSize}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "white";
 
-        for (let y = 0; y < H; y += gap) {
-          for (let x = 0; x < W; x += gap) {
-            const index = (y * W + x) * 4;
-            if (data[index + 3] > 128) {
-              points.push({ x, y });
-            }
-          }
-        }
-        return points;
+  // Draw message in center
+  ctx.fillText(message, W / 2, H / 2);
+
+  const data = ctx.getImageData(0, 0, W, H).data;
+  const points = [];
+
+  // Adjust density for smaller screens
+  const gap = W < 400 ? 8 : W < 600 ? 6 : 5;
+
+  for (let y = 0; y < H; y += gap) {
+    for (let x = 0; x < W; x += gap) {
+      const index = (y * W + x) * 4;
+      if (data[index + 3] > 128) {
+        points.push({ x, y });
       }
+    }
+  }
+
+  return points;
+}
+
 
       function initDots(points) {
         dots.length = 0;
