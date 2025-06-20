@@ -2,43 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Happy Birthday</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      body, html {
+      html, body {
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background-color: #0b0b0b;
+        background: black;
       }
-
       canvas {
         display: block;
       }
     </style>
   </head>
-  <body class="relative w-full h-full touch-none">
-    <!-- Overlay Text -->
-    <div class="absolute top-4 w-full text-center z-10 pointer-events-none">
-      <h1 class="text-pink-400 text-2xl sm:text-3xl md:text-4xl font-bold drop-shadow-[0_0_10px_#ff69b4]">
-        🎉 Happy Birthday, <span id="name">Srishti</span>! 🎉
+  <body class="relative touch-none">
+    <!-- Top Message -->
+    <div class="absolute top-3 w-full text-center z-10 pointer-events-none">
+      <h1 class="text-pink-400 text-[5vw] font-bold drop-shadow-[0_0_10px_#ff69b4]">
+        🎉 Happy Birthday, Srishti! 🎉
       </h1>
     </div>
 
-    <!-- Canvas for animation -->
+    <!-- Canvas -->
     <canvas id="canvas" class="w-full h-full"></canvas>
 
     <script>
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
-      const name = "Srishti"; // change name here
-      document.getElementById("name").innerText = name;
 
       let W, H;
-      const dots = [];
-      const sparkles = [];
-      const message = `Happy Birthday ${name}!`;
+      const dots = [], sparkles = [];
+      const messages = ["Happy Birthday", "Srishti!"];
 
       function resizeCanvas() {
         W = window.innerWidth;
@@ -48,36 +44,37 @@
       }
 
       function createTextPoints() {
-  ctx.clearRect(0, 0, W, H);
+        ctx.clearRect(0, 0, W, H);
 
-  // Dynamically adjust font size
-  let baseSize = W < 400 ? 30 : W < 600 ? 45 : 70;
-  ctx.font = `bold ${baseSize}px sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "white";
+        const fontSize = W < 500 ? 38 : 70;
+        ctx.font = `bold ${fontSize}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.fillStyle = "white";
+        ctx.textBaseline = "middle";
 
-  // Draw message in center
-  ctx.fillText(message, W / 2, H / 2);
+        const lines = messages;
+        const spacing = fontSize + 10;
+        const points = [];
+        const gap = W < 500 ? 7 : 5;
 
-  const data = ctx.getImageData(0, 0, W, H).data;
-  const points = [];
+        lines.forEach((line, i) => {
+          ctx.fillText(line, W / 2, H / 2 - (spacing / 2) + i * spacing);
+          const imageData = ctx.getImageData(0, 0, W, H).data;
 
-  // Adjust density for smaller screens
-  const gap = W < 400 ? 8 : W < 600 ? 6 : 5;
+          for (let y = 0; y < H; y += gap) {
+            for (let x = 0; x < W; x += gap) {
+              const index = (y * W + x) * 4;
+              if (imageData[index + 3] > 128) {
+                points.push({ x, y });
+              }
+            }
+          }
 
-  for (let y = 0; y < H; y += gap) {
-    for (let x = 0; x < W; x += gap) {
-      const index = (y * W + x) * 4;
-      if (data[index + 3] > 128) {
-        points.push({ x, y });
+          ctx.clearRect(0, 0, W, H); // clear between lines
+        });
+
+        return points;
       }
-    }
-  }
-
-  return points;
-}
-
 
       function initDots(points) {
         dots.length = 0;
@@ -124,7 +121,6 @@
 
       function animate() {
         ctx.clearRect(0, 0, W, H);
-
         drawSparkles();
 
         for (let dot of dots) {
@@ -143,7 +139,7 @@
         requestAnimationFrame(animate);
       }
 
-      function startAnimation() {
+      function start() {
         resizeCanvas();
         const points = createTextPoints();
         initDots(points);
@@ -151,8 +147,8 @@
         animate();
       }
 
-      window.addEventListener("resize", startAnimation);
-      window.onload = startAnimation;
+      window.addEventListener("resize", start);
+      window.onload = start;
     </script>
   </body>
 </html>
