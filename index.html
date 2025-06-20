@@ -37,7 +37,7 @@
 
       let W, H;
       const dots = [], sparkles = [];
-      const messages = ["Happy Birthday", "Srishti!"];
+      const messages = ["Happy Birthday,", "Srishti!"]; // Split into two lines
 
       function resizeCanvas() {
         W = window.innerWidth;
@@ -49,18 +49,23 @@
       function createTextPoints() {
         ctx.clearRect(0, 0, W, H);
 
-        const fontSize = Math.min(W * 0.1, H * 0.15, 70); // Responsive font size
+        const fontSize = Math.min(W * 0.08, H * 0.12, 60); // Slightly smaller font
         ctx.font = `bold ${fontSize}px sans-serif`;
         ctx.textAlign = "center";
         ctx.fillStyle = "white";
         ctx.textBaseline = "middle";
 
         const lines = messages;
-        const spacing = fontSize + 10;
+        const spacing = fontSize + 15; // Increased spacing between lines
         const points = [];
-        const gap = W < 500 ? 5 : 4; // Smaller gap for better text formation
+        const gap = W < 500 ? 4 : 3; // Smaller gap for better text formation
 
         lines.forEach((line, i) => {
+          // Make second line bolder
+          if (i === 1) {
+            ctx.font = `bold ${fontSize * 1.2}px sans-serif`; // Bigger and bolder for "Srishti!"
+          }
+          
           const yPos = H / 2 - (spacing / 2) + i * spacing;
           ctx.fillText(line, W / 2, yPos);
           const imageData = ctx.getImageData(0, 0, W, H).data;
@@ -75,6 +80,7 @@
           }
 
           ctx.clearRect(0, 0, W, H); // clear between lines
+          ctx.font = `bold ${fontSize}px sans-serif`; // Reset font
         });
 
         return points;
