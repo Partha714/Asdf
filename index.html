@@ -11,16 +11,19 @@
         padding: 0;
         overflow: hidden;
         background: black;
+        height: 100%;
       }
       canvas {
         display: block;
+        width: 100%;
+        height: 100%;
       }
     </style>
   </head>
   <body class="relative touch-none">
     <!-- Top Message -->
     <div class="absolute top-3 w-full text-center z-10 pointer-events-none">
-      <h1 class="text-pink-400 text-[5vw] font-bold drop-shadow-[0_0_10px_#ff69b4]">
+      <h1 class="text-pink-400 text-4xl md:text-5xl font-bold drop-shadow-[0_0_10px_#ff69b4]">
         🎉 Happy Birthday, Srishti! 🎉
       </h1>
     </div>
@@ -46,7 +49,7 @@
       function createTextPoints() {
         ctx.clearRect(0, 0, W, H);
 
-        const fontSize = W < 500 ? 38 : 70;
+        const fontSize = Math.min(W * 0.1, H * 0.15, 70); // Responsive font size
         ctx.font = `bold ${fontSize}px sans-serif`;
         ctx.textAlign = "center";
         ctx.fillStyle = "white";
@@ -55,10 +58,11 @@
         const lines = messages;
         const spacing = fontSize + 10;
         const points = [];
-        const gap = W < 500 ? 7 : 5;
+        const gap = W < 500 ? 5 : 4; // Smaller gap for better text formation
 
         lines.forEach((line, i) => {
-          ctx.fillText(line, W / 2, H / 2 - (spacing / 2) + i * spacing);
+          const yPos = H / 2 - (spacing / 2) + i * spacing;
+          ctx.fillText(line, W / 2, yPos);
           const imageData = ctx.getImageData(0, 0, W, H).data;
 
           for (let y = 0; y < H; y += gap) {
@@ -147,8 +151,14 @@
         animate();
       }
 
-      window.addEventListener("resize", start);
-      window.onload = start;
+      // Throttle resize events
+      let resizeTimeout;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(start, 200);
+      });
+      
+      window.addEventListener('load', start);
     </script>
   </body>
 </html>
