@@ -27,8 +27,9 @@
     <script>
       let font;
       let particles = [];
-      let lines = ["Happy Birthday", "Srishti!"];
+      let message = "Happy Birthday\nSrishti!";
       let fontSize;
+      let animationDone = false;
 
       function preload() {
         font = loadFont("https://cdnjs.cloudflare.com/ajax/libs/topcoat/0.8.0/font/SourceCodePro-Bold.otf");
@@ -51,16 +52,15 @@
         let spacing = fontSize + 30;
         let allPoints = [];
 
+        let lines = message.split("\n");
         for (let i = 0; i < lines.length; i++) {
           let line = lines[i];
-          let textWidthEstimate = font.textBounds(line, 0, 0, fontSize).w;
-          let x = (width - textWidthEstimate) / 2;
+          let bounds = font.textBounds(line, 0, 0, fontSize);
+          let x = (width - bounds.w) / 2;
           let y = height / 2 - spacing / 2 + i * spacing;
-
           let points = font.textToPoints(line, x, y, fontSize, {
-            sampleFactor: 0.2,
+            sampleFactor: 0.18,
           });
-
           allPoints.push(...points);
         }
 
@@ -75,42 +75,45 @@
           this.target = createVector(tx, ty);
           this.vel = p5.Vector.random2D().mult(random(5));
           this.acc = createVector();
-          this.r = 2.8;
-          this.alpha = 255;
+          this.r = 3;
+          this.arrived = false;
         }
 
         update() {
+          if (this.arrived) return;
           let force = p5.Vector.sub(this.target, this.pos);
-          force.mult(0.07);
+          let d = force.mag();
+          if (d < 0.5) {
+            this.arrived = true;
+            this.pos = this.target.copy();
+            return;
+          }
+          force.setMag(0.1);
           this.acc.add(force);
           this.vel.add(this.acc);
-          this.vel.limit(5);
+          this.vel.limit(4);
           this.pos.add(this.vel);
           this.acc.mult(0);
         }
 
         show() {
           noStroke();
-          fill(255, this.alpha);
+          fill(255);
           ellipse(this.pos.x, this.pos.y, this.r);
         }
       }
 
       function draw() {
-        background(0, 30);
+        background(0);
+        let allArrived = true;
         for (let p of particles) {
           p.update();
           p.show();
+          if (!p.arrived) allArrived = false;
         }
 
-        drawStars(80); // optional sparkle background
-      }
-
-      function drawStars(count) {
-        for (let i = 0; i < count; i++) {
-          fill(255, random(80, 180));
-          noStroke();
-          ellipse(random(width), random(height), random(0.5, 1.5));
+        if (allArrived && !animationDone) {
+          animationDone = true;
         }
       }
     </script>
