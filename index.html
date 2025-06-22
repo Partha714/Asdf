@@ -19,16 +19,15 @@
   </head>
   <body>
     <div class="absolute top-4 w-full text-center z-10 pointer-events-none">
-      <h1 class="text-pink-400 text-[5vw] font-bold drop-shadow-[0_0_12px_#ff69b4]">
+      <h1 class="text-pink-400 text-[6vw] sm:text-[4vw] font-bold drop-shadow-[0_0_12px_#ff69b4]">
         🎉 Happy Birthday, Srishti! 🎉
       </h1>
     </div>
 
     <script>
       let font;
-      let points = [];
       let particles = [];
-      let message = "Happy Birthday Srishti!";
+      let lines = ["Happy Birthday", "Srishti!"];
       let fontSize;
 
       function preload() {
@@ -38,44 +37,41 @@
       function setup() {
         createCanvas(windowWidth, windowHeight);
         background(0);
-        textAlign(CENTER, CENTER);
-        fontSize = windowWidth < 500 ? 50 : 80;
-        createPoints();
-      }
-
-      function createPoints() {
-        points = font.textToPoints(message, 50, height / 2, fontSize, {
-          sampleFactor: 0.2,
-        });
-
-        particles = [];
-        for (let i = 0; i < points.length; i++) {
-          let p = points[i];
-          particles.push(new Particle(random(width), random(height), p.x, p.y));
-        }
+        textFont(font);
+        fontSize = width < 500 ? 48 : 80;
+        generateParticles();
       }
 
       function windowResized() {
         resizeCanvas(windowWidth, windowHeight);
-        fontSize = windowWidth < 500 ? 50 : 80;
-        createPoints();
+        fontSize = width < 500 ? 48 : 80;
+        generateParticles();
       }
 
-      function draw() {
-        background(0, 20);
-        for (let p of particles) {
-          p.update();
-          p.show();
+      function generateParticles() {
+        particles = [];
+        let spacing = fontSize + 20;
+        let allPoints = [];
+
+        for (let i = 0; i < lines.length; i++) {
+          let line = lines[i];
+          let y = height / 2 - spacing / 2 + i * spacing;
+          let pts = font.textToPoints(line, 50, y, fontSize, {
+            sampleFactor: 0.2,
+          });
+          allPoints.push(...pts);
         }
 
-        drawSparkles(80); // optional sparkles
+        for (let pt of allPoints) {
+          particles.push(new Particle(random(width), random(height), pt.x, pt.y));
+        }
       }
 
       class Particle {
         constructor(x, y, tx, ty) {
           this.pos = createVector(x, y);
           this.target = createVector(tx, ty);
-          this.vel = p5.Vector.random2D().mult(random(2, 5));
+          this.vel = p5.Vector.random2D().mult(random(3));
           this.acc = createVector();
           this.r = 3;
           this.color = color(random(360), 100, 100);
@@ -83,7 +79,7 @@
 
         update() {
           let force = p5.Vector.sub(this.target, this.pos);
-          force.mult(0.05);
+          force.mult(0.06);
           this.acc.add(force);
           this.vel.add(this.acc);
           this.vel.limit(5);
@@ -98,13 +94,20 @@
         }
       }
 
-      function drawSparkles(count) {
-        for (let i = 0; i < count; i++) {
+      function draw() {
+        background(0, 25);
+        for (let p of particles) {
+          p.update();
+          p.show();
+        }
+
+        // Sparkles
+        for (let i = 0; i < 50; i++) {
           let x = random(width);
           let y = random(height);
-          let alpha = random(50, 255);
-          noStroke();
+          let alpha = random(30, 150);
           fill(255, alpha);
+          noStroke();
           ellipse(x, y, random(0.5, 1.5));
         }
       }
